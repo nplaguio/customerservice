@@ -1,18 +1,24 @@
 package com.bpi.customerservice.entity;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name="customers")
+@Data //generate getters, setters, and toString
+@Builder
+@NoArgsConstructor //creates empty constructor
+@AllArgsConstructor //creates constructor with all fields
 public class Customer {
-
 
     @Id
     @NotBlank(message = "Customer number is required")
@@ -33,65 +39,4 @@ public class Customer {
     @NotNull(message = "Birth Date is required")
     private LocalDate birthDate;
 
-    public Customer() {
-
-    }
-
-    public Customer(String customerNumber, String accountNumber, String firstName, String lastName, String address, LocalDate birthDate) {
-        this.customerNumber = customerNumber;
-        this.accountNumber = accountNumber;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.address = address;
-        this.birthDate = birthDate;
-    }
-
-
-    public String getCustomerNumber() {
-        return customerNumber;
-    }
-
-    public void setCustomerNumber(String customerNumber) {
-        this.customerNumber = customerNumber;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
 }

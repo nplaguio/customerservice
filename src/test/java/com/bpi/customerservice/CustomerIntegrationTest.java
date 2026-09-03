@@ -36,14 +36,20 @@ class CustomerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // Clear databases before each test to ensure a clean slate
         customerRepository.deleteAll();
         auditLogRepository.deleteAll();
     }
 
     @Test
     void testCreateCustomer_Success() throws Exception {
-        Customer customer = new Customer("123", "ACC001", "John", "Doe", "Manila", LocalDate.of(1990, 1, 1));
+        Customer customer = Customer.builder()
+                .customerNumber("123")
+                .accountNumber("ACC001")
+                .firstName("John")
+                .lastName("Doe")
+                .address("Manila")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
 
         mockMvc.perform(post("/api/customers")
                         .header("requestUID", "req-001")
@@ -54,13 +60,19 @@ class CustomerIntegrationTest {
                 .andExpect(jsonPath("$.customerNumber").value("123"));
 
         assertEquals(1, customerRepository.count());
-        assertEquals(1, auditLogRepository.count()); // Verifies MongoDB Audit Log
+        assertEquals(1, auditLogRepository.count());
     }
 
     @Test
     void testGetCustomer_Success() throws Exception {
-        // Setup existing customer
-        Customer customer = new Customer("123", "ACC001", "John", "Doe", "Manila", LocalDate.of(1990, 1, 1));
+        Customer customer = Customer.builder()
+                .customerNumber("123")
+                .accountNumber("ACC001")
+                .firstName("John")
+                .lastName("Doe")
+                .address("Manila")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
         customerRepository.save(customer);
 
         mockMvc.perform(get("/api/customers/123")
@@ -75,16 +87,30 @@ class CustomerIntegrationTest {
         mockMvc.perform(get("/api/customers/999")
                         .header("requestUID", "req-003")
                         .header("resourceOwnerID", "user-001"))
-                .andExpect(status().isBadRequest()) // Task 1.3 Rule: 400 Bad Request
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists());
     }
 
     @Test
     void testUpdateCustomer_Success() throws Exception {
-        Customer original = new Customer("123", "ACC001", "John", "Doe", "Manila", LocalDate.of(1990, 1, 1));
+        Customer original = Customer.builder()
+                .customerNumber("123")
+                .accountNumber("ACC001")
+                .firstName("John")
+                .lastName("Doe")
+                .address("Manila")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
         customerRepository.save(original);
 
-        Customer updated = new Customer("123", "ACC001", "Jane", "Smith", "Cebu", LocalDate.of(1990, 1, 1));
+        Customer updated = Customer.builder()
+                .customerNumber("123")
+                .accountNumber("ACC001")
+                .firstName("Jane")
+                .lastName("Smith")
+                .address("Cebu")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
 
         mockMvc.perform(put("/api/customers/123")
                         .header("requestUID", "req-004")
@@ -97,7 +123,14 @@ class CustomerIntegrationTest {
 
     @Test
     void testDeleteCustomer_Success() throws Exception {
-        Customer customer = new Customer("123", "ACC001", "John", "Doe", "Manila", LocalDate.of(1990, 1, 1));
+        Customer customer = Customer.builder()
+                .customerNumber("123")
+                .accountNumber("ACC001")
+                .firstName("John")
+                .lastName("Doe")
+                .address("Manila")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
         customerRepository.save(customer);
 
         mockMvc.perform(delete("/api/customers/123")
@@ -111,7 +144,14 @@ class CustomerIntegrationTest {
     @Test
     void testValidationError_Returns400() throws Exception {
         // Missing firstName to trigger validation error
-        Customer invalidCustomer = new Customer("124", "ACC002", "", "Doe", "Manila", LocalDate.of(1990, 1, 1));
+        Customer invalidCustomer = Customer.builder()
+                .customerNumber("124")
+                .accountNumber("ACC002")
+                .firstName("")
+                .lastName("Doe")
+                .address("Manila")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
 
         mockMvc.perform(post("/api/customers")
                         .header("requestUID", "req-006")
@@ -124,13 +164,19 @@ class CustomerIntegrationTest {
     @Test
     void testInvalidApi_Returns404() throws Exception {
         mockMvc.perform(get("/api/fake-endpoint"))
-                .andExpect(status().isNotFound()); // Task 1.5 Rule: 404 Not Found
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void testUpdateCustomer_NotFound_Returns400() throws Exception {
-        // This covers the missing 50% branch in your Service class
-        Customer updatedCustomer = new Customer("999", "ACC999", "Ghost", "User", "Nowhere", LocalDate.of(1990, 1, 1));
+        Customer updatedCustomer = Customer.builder()
+                .customerNumber("999")
+                .accountNumber("ACC999")
+                .firstName("Ghost")
+                .lastName("User")
+                .address("Nowhere")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .build();
 
         mockMvc.perform(put("/api/customers/999")
                         .header("requestUID", "req-007")
@@ -143,7 +189,6 @@ class CustomerIntegrationTest {
 
     @Test
     void testAuditLogEntity_BoostCoverage() {
-        // This explicitly calls your entity methods to satisfy JaCoCo's line counters
         com.bpi.customerservice.entity.AuditLog log = new com.bpi.customerservice.entity.AuditLog();
         log.setId("log-1");
         log.setRequestUID("req-1");
