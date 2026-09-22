@@ -173,4 +173,6 @@ class CustomerIntegrationSuccessTest extends CustomerserviceApplicationTests {
 
         assertEquals(0, customerRepository.count());
     }
+
+
 }
