@@ -2,25 +2,44 @@ package com.bpi.customerservice.flow.customer;
 
 import com.bpi.customerservice.CustomerserviceApplicationTests;
 import com.bpi.customerservice.model.ws.InquireBranchWsResponse;
-import com.bpi.customerservice.service.ws.InquireBranchWsService;
+import com.bpi.customerservice.service.ws.impl.InquireBranchWsServiceImpl;
 import com.bpi.framework.security.policies.AccessPoliciesAspect;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.client.MockRestServiceServer;
 
+import static org.hamcrest.CoreMatchers.anything;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class CustomerIntegrationSuccessTest extends CustomerserviceApplicationTests {
 
-    @MockitoBean
-    private InquireBranchWsService inquireBranchApi;
+    @Autowired
+    private InquireBranchWsServiceImpl inquireBranchWsServiceImpl;
+
+    private MockRestServiceServer mockServer;
 
     @MockitoBean
     private AccessPoliciesAspect accessPoliciesAspect;
+
+    @BeforeEach
+    void setUpMockServer() {
+        mockServer = MockRestServiceServer.createServer(inquireBranchWsServiceImpl);
+    }
+
+    @AfterEach
+    void tearDownMockServer() {
+        mockServer.reset();
+    }
 
     @Test
     void testInquireBranch_Success() throws Exception {
@@ -40,7 +59,11 @@ class CustomerIntegrationSuccessTest extends CustomerserviceApplicationTests {
         InquireBranchWsResponse mockResponse = new InquireBranchWsResponse();
         mockResponse.setInquireBranchOperationResponse(opResponse);
 
-        when(inquireBranchApi.callBranchService(any())).thenReturn(mockResponse);
+        String jsonResponse = objectMapper.writeValueAsString(mockResponse);
+
+        mockServer.expect(requestTo(anything()))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON));
 
         String requestBody = """
                 {
@@ -61,6 +84,8 @@ class CustomerIntegrationSuccessTest extends CustomerserviceApplicationTests {
                 .andExpect(jsonPath("$.body.operationResponse.output.branchName").value("CUBAO-P. TUAZON"))
                 .andExpect(jsonPath("$.body.operationResponse.output.responseCode").value("0"))
                 .andExpect(jsonPath("$.body.operationResponse.output.responseDescription").value("VALID ACCT"));
+
+        mockServer.verify();
     }
 
     @Test

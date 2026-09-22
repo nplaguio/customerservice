@@ -9,9 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 
@@ -32,18 +30,10 @@ public abstract class CustomerserviceApplicationTests {
 	@Autowired
 	protected AuditLogRepository auditLogRepository;
 
-	// Inject your RestTemplate (or WebServiceTemplate if you are using Spring WS)
-	@Autowired
-	protected RestTemplate restTemplate;
-
-	// Protected so all child test classes can configure mock responses
-	protected MockRestServiceServer mockServer;
 	protected Customer defaultCustomer;
 
 	@BeforeEach
 	void setUp() {
-		mockServer = MockRestServiceServer.createServer(restTemplate);
-
 		customerRepository.deleteAll();
 		auditLogRepository.deleteAll();
 
@@ -61,10 +51,7 @@ public abstract class CustomerserviceApplicationTests {
 
 	@AfterEach
 	void tearDown() {
-
 		customerRepository.deleteAll();
 		auditLogRepository.deleteAll();
-		mockServer.reset();
 	}
-
 }
