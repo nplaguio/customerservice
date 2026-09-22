@@ -14,12 +14,11 @@ public class AuditLog {
     private String action;
     private String customerNumber;
     private Object customerDetails;
-    private LocalDateTime timestamp; // Corrected typo
+    private LocalDateTime timestamp;
 
     public AuditLog() {
     }
 
-    // Corrected typo in parameter
     public AuditLog(String requestUID, String resourceOwnerID, String action, String customerNumber, Object customerDetails, LocalDateTime timestamp) {
         this.requestUID = requestUID;
         this.resourceOwnerID = resourceOwnerID;
@@ -77,13 +76,12 @@ public class AuditLog {
         this.customerDetails = customerDetails;
     }
 
-    // Corrected typo in return type
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    // Corrected typo in parameter
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
+
 }

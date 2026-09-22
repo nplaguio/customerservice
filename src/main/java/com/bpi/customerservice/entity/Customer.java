@@ -14,10 +14,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name="customers")
-@Data //generate getters, setters, and toString
+@Data
 @Builder
-@NoArgsConstructor //creates empty constructor
-@AllArgsConstructor //creates constructor with all fields
+@NoArgsConstructor
+@AllArgsConstructor
 public class Customer {
 
     @Id

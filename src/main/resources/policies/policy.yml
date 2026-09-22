@@ -1,0 +1,12 @@
+policies:
+  rules:
+    - clientId: b251c518-d3dc-4f0f-b6dc-19ea588ba853
+      channelName: INTERNAL
+      access:
+        - endPoint: /api/customers/*/inquire-branch
+          method:
+            - POST
+
+        - endPoint: /api/customers
+          method:
+            - POST

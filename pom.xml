@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.bpi</groupId>
 	<artifactId>customerservice</artifactId>
@@ -16,10 +16,22 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<cxf.version>4.0.6</cxf.version>
+		<!-- Instructs SonarQube to ignore POJOs, Configs, and CXF generated files from coverage -->
+		<sonar.coverage.exclusions>
+			**/entity/**,
+			**/model/**,
+			**/dto/**,
+			**/config/**,
+			**/wsrvalni/**,
+			**/wsrvalng/**,
+			**/*Dto.java,
+			**/*Request.java,
+			**/*Response.java
+		</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencies>
-		<!-- Standard Spring Boot Starters -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -37,7 +49,6 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		<!-- Databases -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -50,7 +61,34 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Single Spring Boot Testing Dependency -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-core</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.bpi.framework</groupId>
+			<artifactId>bpi-web</artifactId>
+			<version>2.0.13</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bpi.framework</groupId>
+			<artifactId>bpi-commons</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.bpi.framework</groupId>
+			<artifactId>bpi-secrets</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.5</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -60,17 +98,39 @@
 
 	<build>
 		<plugins>
-			<!-- Spring Boot Maven Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- JaCoCo Plugin (Moved inside the plugins tag) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<!-- Fixed: Removed duplicate jacoco-maven-plugin -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.11</version>
+
+				<configuration>
+					<excludes>
+						<!-- Exclude CXF Generated SOAP Classes from JaCoCo HTML Report -->
+						<exclude>com/request/wsrvalni/wsrvalng/**</exclude>
+						<exclude>com/response/wsrvalni/wsrvalng/**</exclude>
+						<exclude>com/wsrvalni/wsrvalng/**</exclude>
+					</excludes>
+				</configuration>
+
 				<executions>
 					<execution>
 						<goals>
@@ -86,6 +146,31 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-codegen-plugin</artifactId>
+				<version>${cxf.version}</version>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
+							<wsdlOptions>
+								<wsdlOption>
+									<wsdl>${project.basedir}/src/main/resources/wsdl/validateAcctNumber.wsdl</wsdl>
+									<wsdlLocation>classpath:wsdl/validateAcctNumber.wsdl</wsdlLocation>
+								</wsdlOption>
+							</wsdlOptions>
+						</configuration>
+						<goals>
+							<goal>wsdl2java</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 </project>
