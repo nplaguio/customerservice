@@ -1,7 +1,8 @@
 package com.bpi.customerservice.flow.inquirecustomer;
 
 import com.bpi.customerservice.CustomerserviceApplicationTests;
-import com.bpi.customerservice.service.ws.InquireCustomerSoapService;
+import com.wsrvalni.wsrvalng.WSRVALNGPort;
+import jakarta.xml.ws.WebServiceException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -15,12 +16,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class InquireCustomerSoapErrorTest extends CustomerserviceApplicationTests {
 
     @MockitoBean
-    private InquireCustomerSoapService inquireCustomerSoapApi;
+    private WSRVALNGPort wsrvalngPort; // Mock the underlying SOAP port, not the service
 
     @Test
     void testInquireCustomer_ServiceException() throws Exception {
-        // Change RuntimeException to jakarta.xml.ws.WebServiceException to match the service catch block
-        when(inquireCustomerSoapApi.callSoapService(any())).thenThrow(new jakarta.xml.ws.WebServiceException("SOAP Server Down"));
+
+        when(wsrvalngPort.wsrvalngOperation(any())).thenThrow(new WebServiceException("SOAP Server Down"));
 
         String requestBody = """
                 {
@@ -42,7 +43,8 @@ class InquireCustomerSoapErrorTest extends CustomerserviceApplicationTests {
 
     @Test
     void testInquireCustomer_NullResponse() throws Exception {
-        when(inquireCustomerSoapApi.callSoapService(any())).thenReturn(null);
+
+        when(wsrvalngPort.wsrvalngOperation(any())).thenReturn(null);
 
         String requestBody = """
                 {
@@ -60,6 +62,4 @@ class InquireCustomerSoapErrorTest extends CustomerserviceApplicationTests {
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.code").exists());
     }
-
-
 }
